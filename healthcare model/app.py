@@ -1,54 +1,143 @@
-from flask import Flask, request, jsonify
+from fastapi import FastAPI
+from pydantic import BaseModel
 import joblib
 import pandas as pd
+import numpy as np
+from sklearn.preprocessing import LabelEncoder
 
-app = Flask(__name__)
+# -----------------------------
+# APP INIT
+# -----------------------------
+app = FastAPI(title="Healthcare Prediction API", version="1.0")
 
-# Load models
-los_model = joblib.load("models/los_model.pkl")
-test_model = joblib.load("models/xgboost_model.joblib")
-encoders = joblib.load("encorders/encoders.pkl")
+# -----------------------------
+# LOAD MODEL
+# -----------------------------
+try:
+    model = joblib.load("../models/xgboost_model.pkl")
+    print("Model loaded successfully")
+except:
+    model = None
+    print("Model NOT found - running in demo mode")
 
-def preprocess(data):
+# -----------------------------
+# CATEGORICAL ENCODERS
+# -----------------------------
+def create_encoders():
+    encoders = {}
+
+    encoders["Blood Type"] = LabelEncoder().fit(
+        ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
+    )
+    encoders["Gender"] = LabelEncoder().fit(['Female', 'Male'])
+    encoders["Medical Condition"] = LabelEncoder().fit(
+        ['Cancer', 'Obesity', 'Diabetes', 'Asthma', 'Hypertension',
+         'Arthritis', 'Heart Disease', 'Kidney Disease']
+    )
+    encoders["Admission Type"] = LabelEncoder().fit(
+        ['Urgent', 'Emergency', 'Elective']
+    )
+    encoders["Medication"] = LabelEncoder().fit(
+        ['Paracetamol', 'Ibuprofen', 'Aspirin', 'Penicillin', 'Lipitor']
+    )
+    encoders["Insurance Provider"] = LabelEncoder().fit(
+        ['Blue Cross', 'Medicare', 'Aetna', 'UnitedHealthcare', 'Cigna']
+    )
+
+    return encoders
+
+encoders = create_encoders()
+
+# -----------------------------
+# INPUT SCHEMA (VERY IMPORTANT IN FASTAPI)
+# -----------------------------
+class PatientData(BaseModel):
+    Age: int
+    Gender: str
+    Blood_Type: str
+    Medical_Condition: str
+    Billing_Amount: float
+    Admission_Type: str
+    Insurance_Provider: str
+    Medication: str
+
+# -----------------------------
+# PREPROCESSING FUNCTION
+# -----------------------------
+def preprocess(data: dict):
+
     df = pd.DataFrame([data])
 
-    # Convert categorical columns to title case to match training data
-    categorical_cols = ['Gender', 'Blood Type', 'Medical Condition', 'Insurance Provider', 'Admission Type', 'Medication']
+    # map API names → model names
+    df = df.rename(columns={
+        "Blood_Type": "Blood Type",
+        "Medical_Condition": "Medical Condition",
+        "Admission_Type": "Admission Type",
+        "Insurance_Provider": "Insurance Provider"
+    })
+
+    categorical_cols = encoders.keys()
+
     for col in categorical_cols:
         if col in df.columns:
-            df[col] = df[col].str.title()
+            try:
+                df[col] = encoders[col].transform(df[col])
+            except:
+                df[col] = 0  # handle unseen values
 
-    # Select only the features used by the model except Length of Stay
-    model_features = ['Age', 'Gender', 'Blood Type', 'Medical Condition', 'Insurance Provider', 'Billing Amount', 'Admission Type', 'Medication']
-    df = df[model_features]
+    # Ensure required columns
+    required = [
+        "Age",
+        "Gender",
+        "Blood Type",
+        "Medical Condition",
+        "Billing_Amount",
+        "Admission Type",
+        "Insurance Provider",
+        "Medication"
+    ]
 
-    # For prediction, set Length of Stay to a default value since it's required by the model
-    df['Length of Stay'] = 2  # default value
+    for col in required:
+        if col not in df.columns:
+            df[col] = 0
 
-    for col, le in encoders.items():
-        if col in df:
-            df[col] = le.transform(df[col])
+    return df[required]
 
-    return df
-
-@app.route('/')
+# -----------------------------
+# ROUTES
+# -----------------------------
+@app.get("/")
 def home():
-    return "🚀 Hospital Prediction API Running"
+    return {
+        "message": "🚀 Healthcare ML API Running (FastAPI)",
+        "status": "active"
+    }
 
-@app.route('/predict', methods=['POST'])
-def predict_los():
-    data = request.json
-    df = preprocess(data)
-    prediction = los_model.predict(df)
-    prediction_proba = los_model.predict_proba(df)
-    return jsonify({"prediction": prediction.tolist(), "prediction_probability": prediction_proba.tolist()})
+@app.get("/health")
+def health():
+    return {
+        "model_loaded": model is not None
+    }
 
-@app.route('/predict_test', methods=['POST'])
-def predict_test():
-    data = request.json
-    df = preprocess(data)
-    prediction = test_model.predict(df)
-    return jsonify({"Test_Result": int(prediction[0])})
+# -----------------------------
+# PREDICT ENDPOINT
+# -----------------------------
+@app.post("/predict")
+def predict(data: PatientData):
 
-if __name__ == "__main__":
-    app.run(debug=True)
+    input_data = data.dict()
+
+    processed = preprocess(input_data)
+
+    if model:
+        prediction = model.predict(processed)[0]
+
+        return {
+            "predicted_test_result": str(prediction)
+        }
+
+    else:
+        return {
+            "predicted_test_result": "Abnormal (demo mode)",
+            "note": "Model not loaded"
+        }
