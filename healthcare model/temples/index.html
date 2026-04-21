@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare Prediction Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #333;
+        }
+
+        .header {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            margin: 0;
+            color: #333;
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+
+        .header p {
+            margin: 10px 0 0 0;
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            max-width: 800px;
+            margin: 30px auto;
+            flex-grow: 1;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .form-section h2 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+            font-size: 0.95em;
+        }
+
+        select, input[type="number"], input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 6px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+            background-color: white;
+        }
+
+        select:focus, input[type="number"]:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+
+        .input-icon {
+            position: relative;
+        }
+
+        .input-icon i {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+            pointer-events: none;
+        }
+
+        .input-icon select,
+        .input-icon input {
+            padding-right: 40px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 500;
+            width: 100%;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        #result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+
+        .result-success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .result-error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .result-loading {
+            background-color: #e2e3e5;
+            border: 1px solid #d6d8db;
+            color: #383d41;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 20px;
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .form-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1><i class="fas fa-heartbeat"></i> Healthcare Prediction Portal</h1>
+        <p>Advanced AI-powered medical outcome predictions</p>
+    </div>
+
+    <div class="container">
+        <form id="predictionForm">
+            <div class="form-section">
+                <h2><i class="fas fa-user"></i> Patient Information</h2>
+                <div class="form-row">
+                    <div class="form-group input-icon">
+                        <label for="Age">Age:</label>
+                        <input type="number" id="Age" name="Age" value="30" required min="0" max="120">
+                        <i class="fas fa-birthday-cake"></i>
+                    </div>
+                    <div class="form-group input-icon">
+                        <label for="Gender">Gender:</label>
+                        <select id="Gender" name="Gender" required>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                        <i class="fas fa-venus-mars"></i>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group input-icon">
+                        <label for="Blood Type">Blood Type:</label>
+                        <select id="Blood Type" name="Blood Type" required>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                        </select>
+                        <i class="fas fa-tint"></i>
+                    </div>
+                    <div class="form-group input-icon">
+                        <label for="Billing Amount">Billing Amount ($):</label>
+                        <input type="number" step="0.01" id="Billing Amount" name="Billing Amount" value="18856.28" required min="0">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2><i class="fas fa-hospital"></i> Medical Details</h2>
+                <div class="form-row">
+                    <div class="form-group input-icon">
+                        <label for="Medical Condition">Medical Condition:</label>
+                        <select id="Medical Condition" name="Medical Condition" required>
+                            <option value="Cancer">Cancer</option>
+                            <option value="Obesity">Obesity</option>
+                            <option value="Diabetes">Diabetes</option>
+                            <option value="Asthma">Asthma</option>
+                            <option value="Hypertension">Hypertension</option>
+                            <option value="Arthritis">Arthritis</option>
+                            <option value="Heart Disease">Heart Disease</option>
+                            <option value="Kidney Disease">Kidney Disease</option>
+                        </select>
+                        <i class="fas fa-stethoscope"></i>
+                    </div>
+                    <div class="form-group input-icon">
+                        <label for="Admission Type">Admission Type:</label>
+                        <select id="Admission Type" name="Admission Type" required>
+                            <option value="Urgent">Urgent</option>
+                            <option value="Emergency">Emergency</option>
+                            <option value="Elective">Elective</option>
+                        </select>
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group input-icon">
+                        <label for="Medication">Medication:</label>
+                        <select id="Medication" name="Medication" required>
+                            <option value="Paracetamol">Paracetamol</option>
+                            <option value="Ibuprofen">Ibuprofen</option>
+                            <option value="Aspirin">Aspirin</option>
+                            <option value="Penicillin">Penicillin</option>
+                            <option value="Lipitor">Lipitor</option>
+                            <option value="Antibiotics">Antibiotics</option>
+                            <option value="Painkillers">Painkillers</option>
+                        </select>
+                        <i class="fas fa-pills"></i>
+                    </div>
+                    <div class="form-group input-icon">
+                        <label for="Length of Stay">Length of Stay (days):</label>
+                        <input type="number" id="Length of Stay" name="Length of Stay" value="2" required min="1">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2><i class="fas fa-building"></i> Facility Information</h2>
+                <div class="form-row">
+                    <div class="form-group input-icon">
+                        <label for="Hospital">Hospital ID:</label>
+                        <input type="number" id="Hospital" name="Hospital" value="29933" required min="0">
+                        <i class="fas fa-hospital-symbol"></i>
+                    </div>
+                    <div class="form-group input-icon">
+                        <label for="Insurance Provider">Insurance Provider:</label>
+                        <select id="Insurance Provider" name="Insurance Provider" required>
+                            <option value="Blue Cross">Blue Cross</option>
+                            <option value="Medicare">Medicare</option>
+                            <option value="Aetna">Aetna</option>
+                            <option value="UnitedHealthcare">UnitedHealthcare</option>
+                            <option value="Cigna">Cigna</option>
+                        </select>
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group input-icon">
+                        <label for="Room Number">Room Number:</label>
+                        <input type="number" id="Room Number" name="Room Number" value="328" required min="1">
+                        <i class="fas fa-door-open"></i>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn">
+                <i class="fas fa-brain"></i> Get AI Prediction
+            </button>
+        </form>
+
+        <div id="result" class="result-loading">
+            <i class="fas fa-info-circle"></i> Enter patient data and click "Get AI Prediction" to see results.
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2026 Healthcare Prediction Portal. Built by Ameyaw Asante Justice.</p>
+    </div>
+
+    <script>
+        document.getElementById('predictionForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const submitBtn = document.getElementById('submitBtn');
+            const resultDiv = document.getElementById('result');
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner"></span> Analyzing...';
+
+            resultDiv.className = 'result-loading';
+            resultDiv.innerHTML = '<span class="spinner"></span> Processing prediction...';
+
+            const form = event.target;
+            const formData = new FormData(form);
+            const data = {};
+
+            // Collect data from form inputs
+            for (let [key, value] of formData.entries()) {
+                if (!isNaN(parseFloat(value)) && isFinite(value)) {
+                    data[key] = parseFloat(value);
+                } else {
+                    data[key] = value;
+                }
+            }
+
+            try {
+                const response = await fetch('http://localhost:5000/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    resultDiv.className = 'result-success';
+                    
+                    let resultHTML = `<i class="fas fa-check-circle"></i> <strong>Prediction Results:</strong><br><br>`;
+                    
+                    if (result.prediction && result.prediction.length > 0) {
+                        resultHTML += `Prediction: <strong>${result.prediction[0]}</strong><br>`;
+                    }
+                    
+                    if (result.prediction_probability && result.prediction_probability[0]) {
+                        const prob = result.prediction_probability[0];
+                        resultHTML += `Confidence: <strong>${(Math.max(...prob) * 100).toFixed(2)}%</strong><br>`;
+                    }
+                    
+                    if (result.note) {
+                        resultHTML += `<br><em>${result.note}</em>`;
+                    }
+                    
+                    resultDiv.innerHTML = resultHTML;
+                } else {
+                    resultDiv.className = 'result-error';
+                    resultDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> Error: ${result.error || result.message || 'Unknown error occurred'}`;
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.className = 'result-error';
+                resultDiv.innerHTML = `<i class="fas fa-times-circle"></i> Connection failed. Please ensure the Flask API is running on http://localhost:5000`;
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-brain"></i> Get AI Prediction';
+            }
+        });
+    </script>
+</body>
+
+</html>
