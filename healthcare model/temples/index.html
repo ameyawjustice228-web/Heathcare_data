@@ -5,15 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Healthcare Prediction Portal</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         * {
             box-sizing: border-box;
         }
 
         body {
-            font-family: 'Roboto', Arial, sans-serif;
+            font-family: 'Poppins', Arial, sans-serif;
             margin: 0;
             padding: 0;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -85,7 +84,9 @@
             font-size: 0.95em;
         }
 
-        select, input[type="number"], input[type="text"] {
+        select,
+        input[type="number"],
+        input[type="text"] {
             width: 100%;
             padding: 12px;
             border: 2px solid #e1e5e9;
@@ -95,7 +96,9 @@
             background-color: white;
         }
 
-        select:focus, input[type="number"]:focus, input[type="text"]:focus {
+        select:focus,
+        input[type="number"]:focus,
+        input[type="text"]:focus {
             outline: none;
             border-color: #007bff;
             box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
@@ -145,6 +148,24 @@
             box-shadow: none;
         }
 
+        #clearBtn {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 500;
+            margin-left: 10px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        #clearBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+        }
+
         #result {
             margin-top: 30px;
             padding: 20px;
@@ -184,8 +205,13 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         .footer {
@@ -215,19 +241,18 @@
 
 <body>
     <div class="header">
-        <h1><i class="fas fa-heartbeat"></i> Healthcare Prediction Portal</h1>
+        <h1>Patient Health Test Prediction</h1>
         <p>Advanced AI-powered medical outcome predictions</p>
     </div>
 
     <div class="container">
         <form id="predictionForm">
             <div class="form-section">
-                <h2><i class="fas fa-user"></i> Patient Information</h2>
+                <h2>Patient Information</h2>
                 <div class="form-row">
                     <div class="form-group input-icon">
                         <label for="Age">Age:</label>
-                        <input type="number" id="Age" name="Age" value="30" required min="0" max="120">
-                        <i class="fas fa-birthday-cake"></i>
+                        <input type="number" id="Age" name="Age" required min="0" max="120">
                     </div>
                     <div class="form-group input-icon">
                         <label for="Gender">Gender:</label>
@@ -235,13 +260,12 @@
                             <option value="Male">Male</option>
                             <option value="Female">Female</option>
                         </select>
-                        <i class="fas fa-venus-mars"></i>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group input-icon">
-                        <label for="Blood Type">Blood Type:</label>
-                        <select id="Blood Type" name="Blood Type" required>
+                        <label for="Blood_Type">Blood Type:</label>
+                        <select id="Blood_Type" name="Blood_Type" required>
                             <option value="A+">A+</option>
                             <option value="A-">A-</option>
                             <option value="B+">B+</option>
@@ -251,41 +275,36 @@
                             <option value="O+">O+</option>
                             <option value="O-">O-</option>
                         </select>
-                        <i class="fas fa-tint"></i>
                     </div>
                     <div class="form-group input-icon">
-                        <label for="Billing Amount">Billing Amount ($):</label>
-                        <input type="number" step="0.01" id="Billing Amount" name="Billing Amount" value="18856.28" required min="0">
+                        <label for="Billing_Amount">Billing Amount (GHS):</label>
+                        <input type="number" step="0.01" id="Billing_Amount" name="Billing_Amount" required min="0">
                         <i class="fas fa-dollar-sign"></i>
                     </div>
                 </div>
             </div>
 
             <div class="form-section">
-                <h2><i class="fas fa-hospital"></i> Medical Details</h2>
+                <h2>Medical Details</h2>
                 <div class="form-row">
                     <div class="form-group input-icon">
-                        <label for="Medical Condition">Medical Condition:</label>
-                        <select id="Medical Condition" name="Medical Condition" required>
+                        <label for="Medical_Condition">Medical Condition:</label>
+                        <select id="Medical_Condition" name="Medical_Condition" required>
                             <option value="Cancer">Cancer</option>
                             <option value="Obesity">Obesity</option>
                             <option value="Diabetes">Diabetes</option>
                             <option value="Asthma">Asthma</option>
                             <option value="Hypertension">Hypertension</option>
                             <option value="Arthritis">Arthritis</option>
-                            <option value="Heart Disease">Heart Disease</option>
-                            <option value="Kidney Disease">Kidney Disease</option>
                         </select>
-                        <i class="fas fa-stethoscope"></i>
                     </div>
                     <div class="form-group input-icon">
-                        <label for="Admission Type">Admission Type:</label>
-                        <select id="Admission Type" name="Admission Type" required>
+                        <label for="Admission_Type">Admission Type:</label>
+                        <select id="Admission_Type" name="Admission_Type" required>
                             <option value="Urgent">Urgent</option>
                             <option value="Emergency">Emergency</option>
                             <option value="Elective">Elective</option>
                         </select>
-                        <i class="fas fa-clipboard-list"></i>
                     </div>
                 </div>
                 <div class="form-row">
@@ -297,60 +316,58 @@
                             <option value="Aspirin">Aspirin</option>
                             <option value="Penicillin">Penicillin</option>
                             <option value="Lipitor">Lipitor</option>
-                            <option value="Antibiotics">Antibiotics</option>
-                            <option value="Painkillers">Painkillers</option>
                         </select>
-                        <i class="fas fa-pills"></i>
                     </div>
                     <div class="form-group input-icon">
                         <label for="Length of Stay">Length of Stay (days):</label>
-                        <input type="number" id="Length of Stay" name="Length of Stay" value="2" required min="1">
-                        <i class="fas fa-calendar-alt"></i>
+                        <input type="number" id="Length of Stay" name="Length of Stay" required min="1">
                     </div>
                 </div>
             </div>
 
             <div class="form-section">
-                <h2><i class="fas fa-building"></i> Facility Information</h2>
+                <h2>Facility Information</h2>
                 <div class="form-row">
                     <div class="form-group input-icon">
                         <label for="Hospital">Hospital ID:</label>
-                        <input type="number" id="Hospital" name="Hospital" value="29933" required min="0">
-                        <i class="fas fa-hospital-symbol"></i>
+                        <input type="number" id="Hospital" name="Hospital" required min="0">
                     </div>
                     <div class="form-group input-icon">
-                        <label for="Insurance Provider">Insurance Provider:</label>
-                        <select id="Insurance Provider" name="Insurance Provider" required>
+                        <label for="Insurance_Provider">Insurance Provider:</label>
+                        <select id="Insurance_Provider" name="Insurance_Provider" required>
                             <option value="Blue Cross">Blue Cross</option>
                             <option value="Medicare">Medicare</option>
                             <option value="Aetna">Aetna</option>
                             <option value="UnitedHealthcare">UnitedHealthcare</option>
                             <option value="Cigna">Cigna</option>
                         </select>
-                        <i class="fas fa-shield-alt"></i>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group input-icon">
-                        <label for="Room Number">Room Number:</label>
-                        <input type="number" id="Room Number" name="Room Number" value="328" required min="1">
+                        <label for="Room_Number">Room Number:</label>
+                        <input type="number" id="Room_Number" name="Room_Number" required min="1">
                         <i class="fas fa-door-open"></i>
                     </div>
                 </div>
             </div>
 
             <button type="submit" id="submitBtn">
-                <i class="fas fa-brain"></i> Get AI Prediction
+                Get AI Prediction
+            </button>
+            <button type="button" id="clearBtn">
+                Clear Form
             </button>
         </form>
 
         <div id="result" class="result-loading">
-            <i class="fas fa-info-circle"></i> Enter patient data and click "Get AI Prediction" to see results.
+            Enter patient data and click "Get AI Prediction" to see results.
         </div>
     </div>
 
     <div class="footer">
-        <p>&copy; 2026 Healthcare Prediction Portal. Built by Ameyaw Asante Justice.</p>
+        <p>&copy; 2026 |Data Science| Machine Learning.
+            Built by Ameyaw Asante Justice (+233596528599).</p>
     </div>
 
     <script>
@@ -380,7 +397,7 @@
             }
 
             try {
-                const response = await fetch('http://localhost:5000/predict', {
+                const response = await fetch('http://localhost:8000/predict', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -392,36 +409,43 @@
 
                 if (response.ok) {
                     resultDiv.className = 'result-success';
-                    
-                    let resultHTML = `<i class="fas fa-check-circle"></i> <strong>Prediction Results:</strong><br><br>`;
-                    
+
+                    let resultHTML = `<strong>Prediction Results:</strong><br><br>`;
+
                     if (result.prediction && result.prediction.length > 0) {
                         resultHTML += `Prediction: <strong>${result.prediction[0]}</strong><br>`;
                     }
-                    
+
                     if (result.prediction_probability && result.prediction_probability[0]) {
                         const prob = result.prediction_probability[0];
                         resultHTML += `Confidence: <strong>${(Math.max(...prob) * 100).toFixed(2)}%</strong><br>`;
                     }
-                    
+
                     if (result.note) {
                         resultHTML += `<br><em>${result.note}</em>`;
                     }
-                    
+
                     resultDiv.innerHTML = resultHTML;
                 } else {
                     resultDiv.className = 'result-error';
-                    resultDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> Error: ${result.error || result.message || 'Unknown error occurred'}`;
+                    resultDiv.innerHTML = `Error: ${result.error || result.message || 'Unknown error occurred'}`;
                 }
 
             } catch (error) {
                 console.error('Error:', error);
                 resultDiv.className = 'result-error';
-                resultDiv.innerHTML = `<i class="fas fa-times-circle"></i> Connection failed. Please ensure the Flask API is running on http://localhost:5000`;
+                resultDiv.innerHTML = `Connection failed. Please ensure the FastAPI server is running on http://localhost:8000`;
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-brain"></i> Get AI Prediction';
+                submitBtn.innerHTML = 'Get AI Prediction';
             }
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', function () {
+            document.getElementById('predictionForm').reset();
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = 'result-loading';
+            resultDiv.innerHTML = 'Enter patient data and click "Get AI Prediction" to see results.';
         });
     </script>
 </body>
