@@ -1,81 +1,60 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import joblib
 import pandas as pd
-import numpy as np
-import os
 
-from preprocessing import DataPreprocessor
+app = FastAPI()
 
-app = FastAPI(title="Hospital Prediction API")
+# ----------------------------
+# CORS SETUP (IMPORTANT)
+# ----------------------------
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # in production use specific domain
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-# --- Load model & preprocessor ---
-xgb_model_path = "xgboost_model.pkl"
-preprocessor_path = "fitted_preprocessor.pkl"
-
-xgb_model = None
-preprocessor = None
-
-if os.path.exists(xgb_model_path):
-    xgb_model = joblib.load(xgb_model_path)
-    print("XGBoost model loaded successfully!")
-else:
-    print("Model file not found!")
-
-if os.path.exists(preprocessor_path):
-    preprocessor = DataPreprocessor.load(preprocessor_path)
-    print("Preprocessor loaded successfully!")
-else:
-    print("Preprocessor file not found!")
+# ----------------------------
+# LOAD MODEL
+# ----------------------------
+model = joblib.load("models/xgboost_model.pkl")
 
 
-# --- Request schema (important in FastAPI) ---
-class PredictionInput(BaseModel):
+# ----------------------------
+# INPUT SCHEMA
+# ----------------------------
+class PatientData(BaseModel):
     Age: int
     Gender: str
     Blood_Type: str
     Medical_Condition: str
-    Date_of_Admission: str
-    Hospital: str
-    Insurance_Provider: str
     Billing_Amount: float
-    Room_Number: int
     Admission_Type: str
-    Discharge_Date: str
+    Insurance_Provider: str
     Medication: str
-    Test_Results: str = None  # optional for prediction mode
 
 
-# --- Home route ---
+# ----------------------------
+# ROOT
+# ----------------------------
 @app.get("/")
 def home():
-    return {"message": "XGBoost Hospital API is running"}
+    return {"message": "API running"}
 
-
-# --- Prediction route ---
+# ----------------------------
+# PREDICT ENDPOINT
+# ----------------------------
 @app.post("/predict")
-def predict(input_data: PredictionInput):
+def predict(data: PatientData):
 
-    if xgb_model is None or preprocessor is None:
-        raise HTTPException(status_code=500, detail="Model or preprocessor not loaded")
+    df = pd.DataFrame([data.dict()])
 
-    try:
-        # Convert input to DataFrame
-        data_dict = input_data.dict()
-        raw_df = pd.DataFrame([data_dict])
+    # (IMPORTANT) You must preprocess here if needed
+    prediction = model.predict(df)[0]
 
-        # Preprocess
-        processed_df, _ = preprocessor.transform_data(raw_df, predict_mode=True)
-
-        # Predict
-        prediction = xgb_model.predict(processed_df)
-
-        # Convert numeric back to label
-        label = preprocessor.target_encoder.inverse_transform(prediction.astype(int))
-
-        return {
-            "prediction": label.tolist()
-        }
-
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    return {
+        "predicted_test_result": str(prediction)
+    }
